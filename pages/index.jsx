@@ -12,7 +12,7 @@ export default function Home({exploreData, cardsData}) {
     <div>
       <Head>
         <title>Airbnb Clone</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/airbnb-logo.ico" />
         <link href="http://fonts.cdnfonts.com/css/airbnb-cereal-app" rel="stylesheet"></link>
       </Head>
 
