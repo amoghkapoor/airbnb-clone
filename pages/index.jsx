@@ -1,13 +1,13 @@
 import Head from 'next/head'
 import Header from '../components/Header'
 import Banner from '../components/Banner'
-import { google } from "googleapis"
+import {auth} from "google-auth-library"
 import SmallCard from '../components/SmallCard'
 import MediumCard from '../components/MediumCard'
 import HostingCard from '../components/HostingCard'
 import Footer from '../components/Footer'
 
-export default function Home({ exploreData, cardsData }) {
+export default function Home({exploreData, cardsData}) {
   return (
     <div>
       <Head>
@@ -34,7 +34,6 @@ export default function Home({ exploreData, cardsData }) {
 
         <section>
           <h2 className="text-4xl font-semibold py-8">Live anywhere</h2>
-
           <div className="flex space-x-3 overflow-scroll scrollbar-hide p-3 -ml-3 -mr-3">
           {cardsData?.map(item => {
             return(
@@ -48,27 +47,25 @@ export default function Home({ exploreData, cardsData }) {
           <HostingCard/>
         </section>
       </main>
-
+      
       <Footer/>
     </div>
   )
 }
 
 export async function getStaticProps({ query }) {
+  // Base Configurations and Credentials
+  const keysEnvVar = process.env['CREDS']
+  const keys = JSON.parse(keysEnvVar)
+  const client = auth.fromJSON(keys)
+  client.scopes = ['https://www.googleapis.com/auth/spreadsheets']
+  let baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.SHEET_ID}/values`
 
-  const auth = await google.auth.getClient({ scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'] });
-
-  const sheets = google.sheets({ version: 'v4', auth });
-
-  const small_cards_response = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.SHEET_ID,
-    range: 'small_cards!A1:D9',
-  });
-
+  // Small Card Data
+  let small_cards_url = `${baseUrl}/small_cards!A1:D9`
+  const small_cards_response = await client.request({url: small_cards_url})
   small_cards_response.data.values.shift();
-
   const small_cards_data = small_cards_response.data.values
-
   let exploreData = small_cards_data.map(item => {
     return {
       id: item[0],
@@ -78,27 +75,24 @@ export async function getStaticProps({ query }) {
     }
   })
 
-  const medium_cards_response = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.SHEET_ID,
-    range: 'medium_cards!A1:C5'
-  })
-
-  medium_cards_response.data.values.shift()
-
+  // Medium Card Data
+  let medium_cards_url = `${baseUrl}/medium_cards!A1:C5`
+  const medium_cards_response = await client.request({url: medium_cards_url})
+  medium_cards_response.data.values.shift();
   const medium_cards_data = medium_cards_response.data.values
-
   let cardsData = medium_cards_data.map(item => {
-    return {
-      id: item[0],
-      category: item[1],
-      image: item[2]
-    }
-  })
+      return {
+        id: item[0],
+        category: item[1],
+        image: item[2]
+      }
+    })
 
-  return {
+  // Return props 
+  return{
     props: {
       exploreData,
       cardsData
-    },
-  };
+    }
+  }
 }
