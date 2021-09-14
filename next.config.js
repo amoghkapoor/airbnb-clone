@@ -3,6 +3,8 @@ module.exports = {
         domains: [
             "upload.wikimedia.org",
             "a0.muscache.com",
+            "a1.muscache.com",
+            "a2.muscache.com",
             "links.papareact.com",
             'images-na.ssl-images-amazon.com'
         ],

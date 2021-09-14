@@ -6,9 +6,9 @@ import { useRouter } from "next/dist/client/router"
 import _ from 'lodash'
 import {format} from "date-fns"
 import Map from "../../components/Map"
-// import {auth} from "google-auth-library"
+import {auth} from "google-auth-library"
 
-const search = ({searchResults}) => {
+const search = ({searchResults, data}) => {
     const router = useRouter()
     const {location, startDate, endDate, numberOfGuests} = router.query
     const formattedStartDate = format(new Date(startDate), "dd MMMM yy")
@@ -42,7 +42,7 @@ const search = ({searchResults}) => {
                             <p className="px-4 py-2 border rounded-full cursor-pointer hover:shadow-lg active:scale-95 active:bg-gray-100 transition transform duration-100 ease-out">More</p>
                         </div>
                         <div className="flex flex-col">
-                            {searchResults.map(item => {
+                            {/* {searchResults.map(item => {
                                 return(
                                     <InfoCard 
                                     key={item.img}
@@ -55,11 +55,29 @@ const search = ({searchResults}) => {
                                     description={item.description}
                                     days={days} />
                                 )
-                            })}
+                            })} */}
+                            {data.map(item =>
+                                {
+                                    return(
+                                        <InfoCard 
+                                        key={item.id}
+                                        image={item.image}
+                                        price={item.price}
+                                        title={item.name}
+                                        room_type={item.room_type}
+                                        days={days}
+                                        accommodates={item.accommodates}
+                                        bedrooms={item.bedrooms}
+                                        bathrooms={item.bathrooms}
+                                        beds={item.beds}
+                                        amenities={item.amenities}
+                                        />
+                                    )
+                                })}
                         </div>
                     </section>
                     <section className="hidden sticky top-[5.75rem] h-[88.75vh] lg:inline-flex lg:min-w-[600px]">
-                        <Map searchResults={searchResults}/>
+                        <Map searchResults={searchResults} data={data}/>
                     </section>
                 </main>
             <Footer/>
@@ -73,11 +91,52 @@ export default search
 
 export async function getServerSideProps() {
     // Base Configurations and Credentials
-    // const keysEnvVar = process.env['CREDS']
-    // const keys = JSON.parse(keysEnvVar)
-    // const client = auth.fromJSON(keys)
-    // client.scopes = ['https://www.googleapis.com/auth/spreadsheets']
-    // let baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.SHEET_ID}/values`
+    const keysEnvVar = process.env['CREDS']
+    const keys = JSON.parse(keysEnvVar)
+    const client = auth.fromJSON(keys)
+    client.scopes = ['https://www.googleapis.com/auth/spreadsheets']
+    let baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.SHEET_ID}/values`
+
+    let dataUrl = `${baseUrl}/listings!A1:AE3819`
+    const response = await client.request({url: dataUrl})
+    response.data.values.shift();
+    let responseData = response.data.values
+    responseData = responseData.slice(0, 10)
+    let data = responseData.map(item => {
+        return {
+          id: item[0],
+          name: item[1],
+          price: item[2],
+          image: item[3],
+          latitude: item[4],
+          longitude: item[5],
+          room_type: item[6],
+          space: item[7],
+          description: item[8],
+          neighborhood_overview: item[9],
+          notes: item[10],
+          transit: item[11],
+          host_name: item[12],
+          host_about: item[13],
+          host_picture: item[14],
+          street: item[15],
+          neighborhood: item[16],
+          city: item[17],
+          state: item[18],
+          zipcode: item[19],
+          country: item[20],
+          property_type: item[21],
+          accommodates: item[22],
+          bathrooms: item[23],
+          bedrooms: item[24],
+          beds: item[25],
+          amenities: item[26],
+          weekly_price: item[27],
+          monthly_price: item[28],
+          number_of_reviews: item[29],
+          cancellation_policy: item[30],
+        }
+      })
 
     // demo
     //TODO: will update my own data later on
@@ -86,7 +145,8 @@ export async function getServerSideProps() {
 
     return{
         props:{
-            searchResults
+            searchResults,
+            data
         }
     }
 }
