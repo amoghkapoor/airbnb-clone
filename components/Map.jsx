@@ -49,7 +49,14 @@ const Map = ({ searchResults }) => {
                             longitude={item.long}
                             className="z-50"
                         >
+                            <div className="w-56 h-52">
+                            <div className="relative h-36 w-full">
+                                <Image src={item.img} layout="fill" objectFit="cover" />
+                            </div>
                             {item.title}
+                            <br/>
+                            {item.price}
+                            </div>
                         </Popup> : null}
                 </div>
             ))}

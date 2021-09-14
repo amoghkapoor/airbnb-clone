@@ -1,11 +1,11 @@
-import Header from "../components/Header"
-import Footer from "../components/Footer"
-import InfoCard from '../components/InfoCard'
+import Header from "../../components/Header"
+import Footer from "../../components/Footer"
+import InfoCard from '../../components/InfoCard'
 import Head from 'next/head'
 import { useRouter } from "next/dist/client/router"
 import _ from 'lodash'
 import {format} from "date-fns"
-import Map from "../components/Map"
+import Map from "../../components/Map"
 // import {auth} from "google-auth-library"
 
 const search = ({searchResults}) => {
@@ -14,6 +14,11 @@ const search = ({searchResults}) => {
     const formattedStartDate = format(new Date(startDate), "dd MMMM yy")
     const formattedEndDate = format(new Date(endDate), "dd MMMM yy")
     const range = ` ${formattedStartDate} - ${formattedEndDate}`
+    const date1 = new Date(startDate)
+    const date2 = new Date(endDate)
+    let timeDifference = date2.getTime() - date1.getTime()
+    timeDifference === 0 ? timeDifference = (1000 * 3600 * 24) : timeDifference
+    let days = timeDifference / (1000 * 3600 * 24)
     return (
         <>
         <Head>
@@ -47,12 +52,13 @@ const search = ({searchResults}) => {
                                     total={item.total} 
                                     title={item.title}
                                     location={item.location}
-                                    description={item.description} />
+                                    description={item.description}
+                                    days={days} />
                                 )
                             })}
                         </div>
                     </section>
-                    <section className="hidden lg:inline-flex lg:min-w-[600px]">
+                    <section className="hidden sticky top-[5.75rem] h-[88.75vh] lg:inline-flex lg:min-w-[600px]">
                         <Map searchResults={searchResults}/>
                     </section>
                 </main>

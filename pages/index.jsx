@@ -16,7 +16,7 @@ export default function Home({exploreData, cardsData}) {
         <link href="http://fonts.cdnfonts.com/css/airbnb-cereal-app" rel="stylesheet"></link>
       </Head>
 
-      <Header />
+      <Header style/>
       <Banner />
 
       <main className="max-w-7xl mx-auto px-0 sm:px-16">
